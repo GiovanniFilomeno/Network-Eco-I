@@ -1,7 +1,8 @@
 import pandas as pd
-
+import pathlib
 # load the csv file into a pandas data frame
-df_mobility = pd.read_csv('Ladesaeulenregister_CSV.csv', encoding='CP850', sep=';', skiprows=5)
+df_mobility = pd.read_csv('../Data/Ladesaeulenregister_CSV.csv', encoding='latin_1', sep=';', skiprows=5)
+# CP850
 
 #print(df_mobility)
 
@@ -86,6 +87,10 @@ cities[cities.str.contains('München')].unique()
 # array(['Stuttgart', 'Stuttgart-Obertürkheim', 'Stuttgart-Mühlhausen',
 #        'Stuttgart-Möhringen'], dtype=object)
 
+
+# cities_modification2={'M¸nchen': 'München'}
+# df_mobility.city.replace(cities_modification2, inplace=True)
+
 # map wrong names to correct denominations
 cities_modification = {'Hamburg-Wandsbeck': 'Hamburg', 'Hamburg-Duvenstedt': 'Hamburg', 'Berlin-Köpenick': 'Berlin',
                        'Berlin-Friedrichsfelde': 'Berlin', 'Berlin-Reinickendorf': 'Berlin', 'Köln-Niehl': 'Köln',
@@ -125,7 +130,7 @@ plt.xlabel('State', fontsize=16)
 plt.ylabel('Number', fontsize=16)
 
 # plt.show()
-plt.savefig('EVperFederalState.png', bbox_inches='tight')
+plt.savefig('../Exploratory_Analysis_Graphs/EVperFederalState.png', bbox_inches='tight')
 plt.cla()
 
 # top 10 German cities with the most EV charging stations
@@ -141,20 +146,27 @@ plt.xlabel('City', fontsize=16)
 plt.ylabel('Number', fontsize=16)
 
 # plt.show()
-plt.savefig('Top10GermanCity.png', bbox_inches='tight')
+plt.savefig('../Exploratory_Analysis_Graphs/Top10GermanCity.png', bbox_inches='tight')
 plt.cla()
 
 # number of charging stations located in Munich, Hamburg, or Berlin
-top_three = df_mobility.city.isin(['Berlin', 'München', 'Hamburg']).sum()
+# top_three = df_mobility.city.isin(['Berlin', 'München', 'Hamburg']).sum()
+num_Munich=df_mobility.city.isin(['München']).sum()
+num_Berlin=df_mobility.city.isin(['Berlin']).sum()
+num_Hamburg=df_mobility.city.isin(['Hamburg']).sum()
 
+top_three=num_Munich+num_Berlin+num_Hamburg
 # number of charging stations in Germany
 total = df_mobility.shape[0]
 
 # percentage of charging stations located in Munich, Hamburg, or Berlin
 perc=top_three/total*100
+print('Num of Munich:', num_Munich)
+print('Num of Berlin:', num_Berlin)
+print('Num of Hamburg:', num_Hamburg)
 print('Sum of Berlin+München+Hamburg', top_three, 'wrt total Germany', total)
 print('Percentage of Berlin, München, Hamburg', perc)
-# 6.03
+# 9.11
 
 # number of charging points of stations in Germany - pie chart
 df_mobility['number_of_charging_points'].value_counts().plot(kind='pie', figsize=(7,7), autopct='%1.1f%%', fontsize=16)
@@ -164,7 +176,7 @@ plt.title('Number of charging points of stations in Germany', fontsize=20)
 plt.ylabel('')
 
 # plt.show()
-plt.savefig('ChargingPointNumber.png', bbox_inches='tight')
+plt.savefig('../Exploratory_Analysis_Graphs/ChargingPointNumber.png', bbox_inches='tight')
 plt.cla()
 
 # top 10 German cities with the most EV charging points
@@ -180,7 +192,7 @@ plt.xlabel('City',fontsize=16)
 plt.ylabel('Number',fontsize=16)
 
 plt.show()
-plt.savefig('GermanCityPerChargingPoints.png', bbox_inches='tight')
+plt.savefig('../Exploratory_Analysis_Graphs/GermanCityPerChargingPoints.png', bbox_inches='tight')
 plt.cla()
 
 # number of new charging stations installed per year
@@ -196,7 +208,7 @@ plt.xlabel('Year',fontsize=16)
 plt.ylabel('Number',fontsize=16)
 
 # plt.show()
-plt.savefig('ImprovementEVChargingStationPerYear.png', bbox_inches='tight')
+plt.savefig('../Exploratory_Analysis_Graphs/ImprovementEVChargingStationPerYear.png', bbox_inches='tight')
 plt.cla()
 
 # the last date recorded was May 5th 2020
@@ -248,7 +260,7 @@ plt.legend(labels, loc='best', bbox_to_anchor=(-0.1, 1.), fontsize=18)
 plt.title('Power output of charging points in Germany', fontsize=20)
 plt.ylabel('')
 # plt.show()
-plt.savefig('PowerOutputPiePercentage.png', bbox_inches='tight')
+plt.savefig('../Exploratory_Analysis_Graphs/PowerOutputPiePercentage.png', bbox_inches='tight')
 plt.cla()
 #--------------------------------------------------------------------------------------------------------------------
 
@@ -281,7 +293,7 @@ ultra_fast_stations = df_mobility[(df_mobility['p1_[kw]']>=300.0) | (df_mobility
 # number of charging station with ultra-rapid charger
 ultra_fast_stations.federal_state.value_counts().plot(kind='bar', color='springgreen', figsize=(8,6))
 
-print(ultra_fast_stations)
+# print(ultra_fast_stations)
 
 # modify ticks size
 plt.xticks(fontsize=14)
@@ -292,6 +304,46 @@ plt.title('Number of stations with ultra-rapid chargers', fontsize=20)
 plt.xlabel('State', fontsize=16)
 plt.ylabel('Number', fontsize=16)
 
-plt.savefig('UltraRapidChargersPerLand.png', bbox_inches='tight')
+plt.savefig('../Exploratory_Analysis_Graphs/UltraRapidChargersPerLand.png', bbox_inches='tight')
 plt.cla()
 #--------------------------------------------------------------------------------------------------------------------
+
+# number of new charging stations with ultra-rapid chargers
+ultra_fast_stations['commissioning_date'].dt.year.value_counts().sort_index().plot(kind='bar', color='royalblue')
+
+# modify ticks size
+plt.xticks(fontsize=14)
+plt.yticks(fontsize=14)
+
+# title and labels
+plt.title('Number of new charging stations with ultra-rapid chargers', fontsize=20)
+plt.xlabel('Year', fontsize=16)
+plt.ylabel('Number', fontsize=16)
+
+# plt.show()
+################## ACHTUNG
+#--------------------------------------------------------------------------------------------------------------------
+
+# first electric vehicle charging station in Germany
+print('First EV charging station:', df_mobility['commissioning_date'].min())
+# Timestamp('1999-12-31 00:00:00')
+
+# first charging station with an ultra-rapid charging point (>300kW) in Germany.
+print('First ultra-rapid charging station:', ultra_fast_stations['commissioning_date'].min())
+# Timestamp('2012-06-16 00:00:00')
+
+#--------------------------------------------------------------------------------------------------------------------
+
+# the most populated cities in Germany
+biggest_cities = ['Berlin', 'Hamburg', 'München', 'Köln', 'Frankfurt am Main', 'Stuttgart', 'Düsseldorf', 'Dortmund', 'Essen', 'Leipzig']
+
+# group by date and city
+date_city_group_by = df_mobility.groupby([df_mobility['commissioning_date'].dt.year, 'city']).count()
+
+# select a column and move the innermost level of the index to the columns
+date_cities = date_city_group_by.operator.unstack()
+
+# select the most populated cities in germany
+date_cities_10 = date_cities[biggest_cities]
+
+date_cities_10
