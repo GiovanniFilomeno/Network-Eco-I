@@ -346,4 +346,30 @@ date_cities = date_city_group_by.operator.unstack()
 # select the most populated cities in germany
 date_cities_10 = date_cities[biggest_cities]
 
-date_cities_10
+# Number of EV charging station per year and biggest cities --> un-comment if you need
+print(date_cities_10)
+
+# define the colors for the line plot
+colors = ['darkviolet', 'dodgerblue', 'yellow', 'deeppink', 'orange', 'skyblue', 'salmon', 'green', 'red', 'darkblue', 'springgreen']
+
+# line plot showing the total number of EV charging station in operation over the years
+date_cities_10.fillna(0.0).cumsum().plot(color=colors, marker='o', alpha=0.7, linewidth=3, figsize=(10,6))
+
+# modify the ticks and the legend
+plt.xticks(fontsize=14)
+plt.yticks(fontsize=14)
+plt.legend(fontsize=14)
+
+# define the title and the labels
+plt.title('Total number of EV charging stations in operation', fontsize=20)
+plt.xlabel('Year', fontsize=16)
+plt.ylabel('Number', fontsize=16)
+plt.xlim([2007, 2022])
+
+plt.savefig('../Exploratory_Analysis_Graphs/EVchargingEvolutionPerYearAndCity.png', bbox_inches='tight')
+plt.cla()
+
+#--------------------------------------------------------------------------------------------------------------------
+
+import folium 
+
