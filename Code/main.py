@@ -400,39 +400,3 @@ for lat, lng in zip(df_munich['latitude_[dg]'], df_munich['longitude_[dg]']):
 
 
 munich_map_markers.save('../Exploratory_Analysis_Graphs/munichmapEV.html')
-
-# number of charging points of stations in Munich - percentage
-df_munich.number_of_charging_points.value_counts(normalize=True)*100
-
-# create a map object of the city of Munich
-munich_map_markers_2 = folium.Map(location=[48.137154, 11.576124], zoom_start=12)
-
-# define colors for the markers
-colors = ['red', 'purple', 'orange', 'blue']
-
-# display charging stations using circle markers
-for lat, lng, number in zip(df_munich['latitude_[dg]'], df_munich['longitude_[dg]'], df_munich['number_of_charging_points']):
-    folium.CircleMarker(
-            [lat, lng],
-            radius=number*2,
-            color=colors[number-1],
-            opacity=0.5,
-            fill=True,
-            fill_color='blue').add_to(munich_map_markers_2)
-    
-munich_map_markers_2
-
-# type of chargers - normal or fast
-df_mobility.type_of_charger.unique()
-# array(['fast', 'normal'], dtype=object)
-
-# a charging station is considered fast if contains at least 1 charging point with a power output larger than 22kw
-df_mobility[df_mobility.type_of_charger == 'fast'][['p1_[kw]', 'p2_[kw]', 'p3_[kw]', 'p4_[kw]']].max(axis=1).unique()
-# array([150.   ,  75.   ,  50.   , 175.   ,  25.   ,  53.   , 350.   ,
-#        320.   ,  45.   ,  43.   ,  60.   , 100.   ,  23.   ,  44.   ,
-#         30.   ,  27.   ,  42.   , 160.   , 225.   ,  22.144, 300.   ,
-#         24.   , 163.   , 112.5  , 120.   ])
-
-# number of charging stations with at least one charging point with a power output >22kw
-len(df_munich[df_munich.type_of_charger == 'fast'])
-# 23
