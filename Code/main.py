@@ -1,3 +1,4 @@
+from IPython.core.display import Latex
 import pandas as pd
 import pathlib
 # load the csv file into a pandas data frame
@@ -12,7 +13,7 @@ df_mobility = pd.read_csv('../Data/Ladesaeulenregister_CSV.csv', encoding='latin
 old_names = df_mobility.columns.tolist()
 
 new_names = ['operator', 'address', 'house_number', 'placeholder1', 'postcode', 'city', 'federal_state', 'metropolitan_area', 
-                'longitude_[dg]', 'latitude_[dg]', 'commissioning_date',
+                'latitude_[dg]', 'longitude_[dg]', 'commissioning_date',
                 'power_connection_[kw]', 'type_of_charger', 'number_of_charging_points','type_of_plug_1', 'p1_[kw]', 
              'public_key1', 'type_of_plug_2', 'p2_[kw]', 'public_key2', 'type_of_plug_3', 'p3_[kw]', 'public_key3',
              'type_of_plug_4', 'p4_[kw]', 'public_key4']
@@ -191,7 +192,7 @@ plt.title('Top 10 German cities with the most EV charging points',fontsize=20)
 plt.xlabel('City',fontsize=16)
 plt.ylabel('Number',fontsize=16)
 
-plt.show()
+# plt.show() ACHTUNG !!!!!!!!!!!!!!!
 plt.savefig('../Exploratory_Analysis_Graphs/GermanCityPerChargingPoints.png', bbox_inches='tight')
 plt.cla()
 
@@ -392,7 +393,7 @@ munich_map_markers = folium.Map(location=[48.137154, 11.576124], zoom_start=12)
 for lat, lng in zip(df_munich['latitude_[dg]'], df_munich['longitude_[dg]']):
     folium.CircleMarker(
             [lat, lng],
-            radius=4,
+            radius=9,
             color='purple',
             opacity=0.4,
             fill=True,
@@ -400,3 +401,21 @@ for lat, lng in zip(df_munich['latitude_[dg]'], df_munich['longitude_[dg]']):
 
 
 munich_map_markers.save('../Exploratory_Analysis_Graphs/munichmapEV.html')
+
+# df_mobility.to_excel('../Exploratory_Analysis_Graphs/cleanedExcel.xlsx') # save the cleaned excel data
+
+# berlin_munich_map_markers = folium.Map(location=[50.312262, 12.253611], zoom_start=7)
+
+# for lat, lng in zip(df_mobility['latitude_[dg]'],df_mobility['longitude_[dg]']):
+#    if lat < 53 and lat>48:
+#        if lng < 14 and lng >11:
+#            folium.CircleMarker(
+#            [lat, lng],
+#           radius=4,
+#          color='purple',
+#            opacity=0.4,
+#            fill=True,
+#            fill_color='blue').add_to(berlin_munich_map_markers)
+
+# berlin_munich_map_markers.save('../Exploratory_Analysis_Graphs/berlinMunich.html')
+
