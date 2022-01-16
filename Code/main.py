@@ -402,6 +402,93 @@ for lat, lng in zip(df_munich['latitude_[dg]'], df_munich['longitude_[dg]']):
 
 munich_map_markers.save('../Exploratory_Analysis_Graphs/munichmapEV.html')
 
+import networkx as nx
+from datetime import datetime
+
+i=0
+j=0
+k=0
+latdodici=[]
+lgdodici=[]
+
+latquindici=[]
+lgquindici=[]
+
+latall=[]
+lgall=[]
+
+posdodici={}
+
+for lat, lng, temp in zip(df_mobility['latitude_[dg]'], df_mobility['longitude_[dg]'], df_mobility['commissioning_date']):
+    t1=datetime.strptime(str(temp), "%Y-%m-%d %H:%M:%S")
+    if t1.year<2012:
+        i=i+1
+        latdodici.append(lat)
+        lgdodici.append(lng)
+        posdodici[i]=(lng,lat)
+    
+    if t1.year<2016:
+        j=j+1
+        latquindici.append(lat)
+        lgquindici.append(lng)
+    
+    k=k+1
+    latall.append(lat)
+    lgall.append(lng)
+
+# print(latquindici[50])
+
+from math import sin,cos,sqrt,atan2,radians
+
+Gdodici=np.zeros((i,i))
+
+R = 6373.0 # planet radius
+
+for a in range (1,i):
+    for b in range (1,i):
+        #print("Questa a", a, "questa ist b", b)
+        if a==b:
+            Gdodici[a,b]=0
+        else:
+            dlon=radians(lgdodici[a]-lgdodici[b])
+            dlat=radians(latdodici[a]-latdodici[b])
+            aD = (sin(dlat/2))**2 + cos(radians(latdodici[a])) * cos(radians(latdodici[b])) * (sin(dlon/2))**2
+            c = 2 * atan2(sqrt(aD), sqrt(1-aD))
+            distance = R * c
+            if distance<50: #3ßß*0.8
+                Gdodici[a,b]=1
+
+# print(Gdodici)
+
+options = {
+    'node_color': 'lavender',
+    'node_size': 300,
+    'width': 1,
+    'arrowstyle': '->',
+    'arrowsize': 10,
+}
+
+networkdodici=nx.Graph(Gdodici)
+# adjadodici=nx.DiGraph(Gdodici)
+mapping = dict(zip(np.arange(0,i), np.arange(1,i+1)))
+
+
+
+nx.draw_networkx(nx.relabel_nodes(networkdodici, mapping), pos = posdodici, **options)
+
+plt.show()
+
+
+
+# print(i) --> 421
+# print(j) --> 1599
+# print(k) ---> 23396
+
+
+
+    
+    
+
 # df_mobility.to_excel('../Exploratory_Analysis_Graphs/cleanedExcel.xlsx') # save the cleaned excel data
 
 # berlin_munich_map_markers = folium.Map(location=[50.312262, 12.253611], zoom_start=7)
