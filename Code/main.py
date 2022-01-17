@@ -418,6 +418,10 @@ latall=[]
 lgall=[]
 
 posdodici={}
+posquindici={}
+posventuno={}
+
+autonomia_auto=200
 
 for lat, lng, temp in zip(df_mobility['latitude_[dg]'], df_mobility['longitude_[dg]'], df_mobility['commissioning_date']):
     t1=datetime.strptime(str(temp), "%Y-%m-%d %H:%M:%S")
@@ -431,10 +435,12 @@ for lat, lng, temp in zip(df_mobility['latitude_[dg]'], df_mobility['longitude_[
         j=j+1
         latquindici.append(lat)
         lgquindici.append(lng)
+        posquindici[j]=(lng,lat)
     
     k=k+1
     latall.append(lat)
     lgall.append(lng)
+    posventuno[k]=(lng,lat)
 
 # print(latquindici[50])
 
@@ -455,7 +461,7 @@ for a in range (1,i):
             aD = (sin(dlat/2))**2 + cos(radians(latdodici[a])) * cos(radians(latdodici[b])) * (sin(dlon/2))**2
             c = 2 * atan2(sqrt(aD), sqrt(1-aD))
             distance = R * c
-            if distance<50: #3ßß*0.8
+            if distance<autonomia_auto: #3ßß*0.8
                 Gdodici[a,b]=1
 
 # print(Gdodici)
@@ -465,28 +471,101 @@ options = {
     'node_size': 300,
     'width': 1,
     'arrowstyle': '->',
-    'arrowsize': 10,
+    'arrowsize': 1,
 }
 
 networkdodici=nx.Graph(Gdodici)
 # adjadodici=nx.DiGraph(Gdodici)
 mapping = dict(zip(np.arange(0,i), np.arange(1,i+1)))
 
-
+plt.clf()
+plt.cla()
 
 nx.draw_networkx(nx.relabel_nodes(networkdodici, mapping), pos = posdodici, **options)
+plt.title('EV charging stations network (2012) of BEV with 200 km range', fontsize=20)
 
-plt.show()
+plt.savefig('../Exploratory_Analysis_Graphs/EVNetworkBEV2012.png')
 
+degree_centraly=nx.degree_centrality(networkdodici)
 
+spl=dict(nx.all_pairs_dijkstra_path(networkdodici))
+
+# print(spl)
+
+# München 35
+# Berlin 109
+# Hamburg 420
+# Düsseldorf 188
+
+print('Distance between München and Berlin is', spl[109][35])
+print('Distance between München and Hamburg is', spl[35][420])
+print('Distance between München and Düsseldorf is', spl[35][188])
+
+# plt.show()
 
 # print(i) --> 421
 # print(j) --> 1599
 # print(k) ---> 23396
 
+# ------------------------------- 2015 -------------------------------
+print('Calculating 2015')
+Gquindici=np.zeros((j,j))
 
+for a in range (1,j):
+    for b in range (1,j):
+        #print("Questa a", a, "questa ist b", b)
+        if a==b:
+            Gquindici[a,b]=0
+        else:
+            dlon=radians(lgquindici[a]-lgquindici[b])
+            dlat=radians(latquindici[a]-latquindici[b])
+            aD = (sin(dlat/2))**2 + cos(radians(latquindici[a])) * cos(radians(latquindici[b])) * (sin(dlon/2))**2
+            c = 2 * atan2(sqrt(aD), sqrt(1-aD))
+            distance = R * c
+            if distance<autonomia_auto: #3ßß*0.8
+                Gquindici[a,b]=1
 
-    
+networkquindici=nx.Graph(Gquindici)
+# adjadodici=nx.DiGraph(Gdodici)
+mappingquindici = dict(zip(np.arange(0,j), np.arange(1,j+1)))
+
+plt.clf()
+plt.cla()
+
+nx.draw_networkx(nx.relabel_nodes(networkquindici, mappingquindici), pos = posquindici, **options)
+plt.title('EV charging stations network (2015) of BEV with 200 km range', fontsize=20)
+
+plt.savefig('../Exploratory_Analysis_Graphs/EVNetworkBEV2015.png')
+
+# ------------------------------- 2021 -------------------------------
+print('Calculating 2021')
+Gventuno=np.zeros((k,k))
+
+for a in range (1,k):
+    for b in range (1,k):
+        #print("Questa a", a, "questa ist b", b)
+        if a==b:
+            Gventuno[a,b]=0
+        else:
+            dlon=radians(lgall[a]-lgall[b])
+            dlat=radians(latall[a]-latall[b])
+            aD = (sin(dlat/2))**2 + cos(radians(latall[a])) * cos(radians(latall[b])) * (sin(dlon/2))**2
+            c = 2 * atan2(sqrt(aD), sqrt(1-aD))
+            distance = R * c
+            if distance<autonomia_auto: #3ßß*0.8
+                Gventuno[a,b]=1
+
+networkventuno=nx.Graph(Gventuno)
+# adjadodici=nx.DiGraph(Gdodici)
+mappingventuno = dict(zip(np.arange(0,k), np.arange(1,k+1)))
+
+plt.clf()
+plt.cla()
+
+nx.draw_networkx(nx.relabel_nodes(networkventuno, mappingquindici), pos = posventuno, **options)
+plt.title('EV charging stations network (2021) of BEV with 200 km range', fontsize=20)
+
+plt.savefig('../Exploratory_Analysis_Graphs/EVNetworkBEV2021.png')
     
 
 # df_mobility.to_excel('../Exploratory_Analysis_Graphs/cleanedExcel.xlsx') # save the cleaned excel data
